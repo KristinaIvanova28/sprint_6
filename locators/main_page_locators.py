@@ -2,7 +2,6 @@ from selenium.webdriver.common.by import By
 
 
 class MainPageLocators:
-    URL = "https://qa-scooter.praktikum-services.ru/"
 
     # FAQ
     @staticmethod
