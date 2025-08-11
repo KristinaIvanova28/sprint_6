@@ -1,23 +1,12 @@
 import allure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 from locators.order_page_locators import OrderPageLocators
 
 
 class OrderPage(BasePage):
-    @allure.step("Ожидание подсказки метро и выбор станции: {station_name}")
-    def wait_for_metro_suggestion_and_click(self, station_name):
-        suggestion_locator = (
-            By.XPATH,
-            f"//div[contains(@class, 'Order_SelectOption')]/span[text()='{station_name}']"
-        )
-        element = self.wait_for_visible(suggestion_locator)
-        self.driver.execute_script("arguments[0].click();", element)
-
     @allure.step("Заполнение первой страницы заказа")
     def fill_first_page(self, name, last_name, address, metro, phone):
         self.input_text(OrderPageLocators.FIELD_NAME, name)
@@ -28,6 +17,10 @@ class OrderPage(BasePage):
         metro_input.clear()
         metro_input.send_keys(metro)
 
+        metro_input = self.wait_for_visible(OrderPageLocators.FIELD_METRO)
+        metro_input.clear()
+    
+        metro_input.send_keys(metro)
         metro_input.send_keys(Keys.ARROW_DOWN)
         metro_input.send_keys(Keys.ENTER)
 
@@ -44,7 +37,7 @@ class OrderPage(BasePage):
 
     @allure.step("Выбор даты доставки: {date_str}")
     def select_date(self, date_str):
-        day = date_str.split('.')[0].lstrip('0')  # Убираем ведущий ноль
+        day = date_str.split('.')[0].lstrip('0')
         day_locator = (
             By.XPATH,
             f"//div[contains(@class, 'react-datepicker__day') and text()='{day}' "
@@ -72,10 +65,7 @@ class OrderPage(BasePage):
 
     @allure.step("Подтверждение заказа кнопкой 'Да'")
     def click_confirm_button(self):
-        # Ожидание текста в модальном окне
-        self.wait_for_visible((By.XPATH, "//div[contains(text(), 'оформить заказ')]"))
-        button = self.wait_for_clickable(OrderPageLocators.BUTTON_CONFIRM)
-        self.driver.execute_script("arguments[0].click();", button)
+        self.click(OrderPageLocators.BUTTON_CONFIRM)
 
     @allure.step("Проверка: модальное окно успеха отображается")
     def is_success_modal_displayed(self):
